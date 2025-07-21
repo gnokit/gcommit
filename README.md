@@ -6,8 +6,10 @@ AI-powered Git commit message generator that uses Ollama to create conventional 
 
 - **AI-powered**: Uses local Ollama LLM to generate commit messages
 - **Conventional Commits**: Follows [Conventional Commits](https://www.conventionalcommits.org/) format
+- **Rich Terminal UI**: Beautiful, modern terminal interface with progress bars and styled output
 - **Untracked file warnings**: Alerts you about files not included in the commit
 - **Interactive confirmation**: Review and edit AI-generated messages before committing
+- **Progress indicators**: Real-time progress bars and spinner animations
 - **Cross-platform**: Works on macOS, Linux, and Windows (WSL)
 - **Virtual environment**: Uses isolated Python environment via wrapper script
 
@@ -67,20 +69,40 @@ git add app.js
 # Generate commit message
 ./gcommit
 # Output:
-# ⚠️  Warning: Untracked files detected:
-#    - debug.log
-#
-# This file will not be included in the commit. Use 'git add' to track it.
-#
-# Generating commit message...
-#
-# Generated commit message:
-# ----------------------------------------
-# feat: add console log for debugging
-#
-# - Added console.log statement to app.js for debugging purposes
-# ----------------------------------------
-# Accept? (y/n) or enter a new message: y
+# ┌─────────────────────────────────────────────────────┐
+# │                    Welcome                          │
+# │ 🤖 gcommit - AI-powered Git commit message generator │
+# └─────────────────────────────────────────────────────┘
+# 
+# ─────── Analyzing Staged Files ───────
+# Processing files... ━━━━━━━━━━━━━━━━━━━━━━━━ 100% 1/1
+# Analyzing app.js... 
+# 
+# ─────── File Analysis Results ───────
+# ┌────────────┬─────────────────────────────────────────┐
+# │ File       │ Summary                                 │
+# ├────────────┼─────────────────────────────────────────┤
+# │ app.js     │ Added console.log statement for debugging│
+# └────────────┴─────────────────────────────────────────┘
+# 
+# ─────── Generating Commit Message ───────
+# Creating commit message... 
+# 
+# ─────── Commit Message Preview ───────
+# ┌─────────────────────────────┐
+# │  Generated Commit Message   │
+# │                             │
+# │ feat: add console log for   │
+# │ debugging                   │
+# │                             │
+# │ - Added console.log         │
+# │   statement to app.js for   │
+# │   debugging purposes        │
+# └─────────────────────────────┘
+# 
+# What would you like to do? (accept/reject/edit) [accept]: accept
+# ─────── Committing Changes ───────
+# Committing... 
 # ✅ Changes committed successfully!
 ```
 
@@ -105,11 +127,14 @@ git add app.js
 
 ## How It Works
 
-1. **Checks for untracked files** - Warns about files not tracked by Git
-2. **Reads staged changes** - Gets diff of staged files via `git diff --staged`
-3. **AI generation** - Sends diff to Ollama LLM for conventional commit generation
-4. **User confirmation** - Shows generated message and asks for approval/editing
-5. **Commits changes** - Executes `git commit` with final message
+1. **Rich UI Display** - Shows beautiful welcome header and organized sections
+2. **Checks for untracked files** - Displays warnings in styled tables
+3. **Reads staged changes** - Gets diff of staged files via `git diff --staged`
+4. **Progress Tracking** - Shows real-time progress bars and spinners during processing
+5. **AI generation** - Sends diff to Ollama LLM for conventional commit generation
+6. **Interactive Preview** - Displays commit message in styled panels
+7. **User confirmation** - Rich interactive prompts for approval/editing
+8. **Commits changes** - Executes `git commit` with final message
 
 ## Troubleshooting
 
@@ -143,6 +168,12 @@ The wrapper script handles venv automatically. To reset:
 rm -rf venv/
 ./gcommit  # Will recreate venv
 ```
+
+### Rich Terminal Issues
+If you experience display issues:
+- Ensure your terminal supports Unicode and colors
+- Rich automatically detects terminal capabilities
+- Use a modern terminal like iTerm2, Windows Terminal, or GNOME Terminal
 
 ## Development
 
