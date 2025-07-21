@@ -52,7 +52,9 @@ class GitHelper:
             )
             return result.stdout if result.stdout.strip() else None
         except subprocess.CalledProcessError as e:
-            print(f"Error getting diff for {filepath}: {e}", file=sys.stderr)
+            from rich.console import Console
+            console = Console()
+            console.print(f"[danger]Error getting diff for {filepath}: {e}[/danger]")
             return None
     
     @staticmethod
@@ -65,5 +67,7 @@ class GitHelper:
             )
             return True
         except subprocess.CalledProcessError as e:
-            print(f"Error committing changes: {e}", file=sys.stderr)
+            from rich.console import Console
+            console = Console()
+            console.print(f"[danger]Error committing changes: {e}[/danger]")
             return False

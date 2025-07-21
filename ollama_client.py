@@ -7,6 +7,9 @@ import sys
 import json
 from typing import List, Tuple, Optional
 import requests
+from rich.console import Console
+
+console = Console()
 
 
 class OllamaClient:
@@ -58,11 +61,11 @@ Provide only the summary sentence, no additional text."""
                 summary = result.get('response', '').strip()
                 return summary if summary else None
             else:
-                print(f"Ollama API error for {filepath}: {response.status_code}", file=sys.stderr)
+                console.print(f"[danger]Ollama API error for {filepath}: {response.status_code}[/danger]")
                 return None
                 
         except requests.RequestException as e:
-            print(f"Error connecting to Ollama for {filepath}: {e}", file=sys.stderr)
+            console.print(f"[danger]Error connecting to Ollama for {filepath}: {e}[/danger]")
             return None
     
     def generate_commit_message(self, file_summaries: List[Tuple[str, str]], hint: str = "") -> Optional[str]:
@@ -106,9 +109,9 @@ Provide only the commit message, no additional text."""
                 message = result.get('response', '').strip()
                 return message if message else None
             else:
-                print(f"Ollama API error: {response.status_code}", file=sys.stderr)
+                console.print(f"[danger]Ollama API error: {response.status_code}[/danger]")
                 return None
                 
         except requests.RequestException as e:
-            print(f"Error connecting to Ollama: {e}", file=sys.stderr)
+            console.print(f"[danger]Error connecting to Ollama: {e}[/danger]")
             return None
