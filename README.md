@@ -66,18 +66,6 @@ gcommit <your_initial_commit_message>
 
 ## Usage
 
-### Basic Usage
-
-1. Make changes to your code
-2. Stage your changes:
-   ```bash
-   git add "refactor README.md"
-   ```
-3. Generate commit message:
-   ```bash
-   ./gcommit
-   ```
-
 ### Workflow Example
 
 ```bash
