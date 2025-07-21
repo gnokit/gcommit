@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# gcommit - AI-powered git commit message generator
+# This wrapper script ensures the virtual environment is used
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VENV_DIR="$SCRIPT_DIR/venv"
+PYTHON_SCRIPT="$SCRIPT_DIR/gcommit.py"
+REQUIREMENTS_FILE="$SCRIPT_DIR/requirements.txt"
+
+# Error function
+print_error() {
+    echo "Error: $1" >&2
+}
+
+# Main execution
+main() {
+    # Change to script directory to ensure relative paths work
+    cd "$SCRIPT_DIR"
+    
+    # Run the Python script with all arguments using venv Python
+    if [ -f "$VENV_DIR/bin/python" ]; then
+        "$VENV_DIR/bin/python" "$PYTHON_SCRIPT" "$@"
+    else
+        echo "Virtual environment not found. Please run: python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt" >&2
+        exit 1
+    fi
+}
+
+# Run main function
+main "$@"
