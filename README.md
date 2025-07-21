@@ -132,69 +132,6 @@ gcommit "add console log message: hello"
 7. **User confirmation** - Rich interactive prompts for approval/editing
 8. **Commits changes** - Executes `git commit` with final message
 
-## Troubleshooting
-
-### Ollama Not Running
-```bash
-# Start Ollama
-ollama serve
-
-# In another terminal
-./gcommit
-```
-
-### Permission Issues
-```bash
-# Make wrapper executable
-chmod +x gcommit
-```
-
-### Model Issues
-```bash
-# List available models
-ollama list
-
-# Pull a specific model
-ollama pull llama3
-```
-
-### Virtual Environment Issues
-Manual venv setup is required:
-```bash
-# Remove existing venv
-rm -rf venv/
-
-# Recreate venv
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-### Rich Terminal Issues
-If you experience display issues:
-- Ensure your terminal supports Unicode and colors
-- Rich automatically detects terminal capabilities
-- Use a modern terminal like iTerm2, Windows Terminal, or GNOME Terminal
-
-## Development
-
-If you want to modify the code:
-
-```bash
-# Ensure venv is set up
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run directly with Python
-python gcommit.py --help
-
-# Or run the wrapper
-./gcommit --help
-```
-
 ## License
 
 MIT License - see LICENSE file for details.
