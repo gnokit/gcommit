@@ -16,9 +16,6 @@ print_error() {
 
 # Main execution
 main() {
-    # Change to script directory to ensure relative paths work
-    cd "$SCRIPT_DIR"
-    
     # Run the Python script with all arguments using venv Python
     if [ -f "$VENV_DIR/bin/python" ]; then
         "$VENV_DIR/bin/python" "$PYTHON_SCRIPT" "$@"
