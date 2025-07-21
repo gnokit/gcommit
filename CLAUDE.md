@@ -4,55 +4,88 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**gcommit** is a Python CLI tool that uses AI (via Ollama) to generate Git commit messages from staged changes, following conventional commits format.
+**gcommit** is a Python CLI tool that uses Ollama (local AI) to generate conventional commit messages from staged Git changes.
 
 ## Architecture
 
-- **gcommit.py**: Main Python CLI script with Git integration and Ollama API client
-- **gcommit**: Shell wrapper script that uses venv Python interpreter
-- **requirements.txt**: Single dependency (requests) for HTTP API calls
-- **REQUIREMENTS.md**: Original project requirements specification
+The codebase follows a modular design with clear separation of concerns:
 
-## Key Components
+- **gcommit.py**: CLI entry point with argument parsing
+- **gcommit_app.py**: Main application orchestrator (`GCommit` class)
+- **git_helper.py**: Git operations wrapper (`GitHelper` class)
+- **ollama_client.py**: Ollama API client (`OllamaClient` class)
+- **gcommit**: Shell wrapper for venv isolation
 
-### CLI Script (gcommit.py)
-- **GitHelper** class: Handles git operations (diff, commit, untracked file detection)
-- **OllamaClient** class: Manages Ollama API communication for AI message generation
-- **GCommit** class: Main application logic coordinating Git operations and AI generation
-- Supports command-line arguments: `--ollama-url`, `--model`
+### Key Classes
 
-### Wrapper Script (gcommit)
-- Simple shell script that runs Python via venv
-- Checks for existing venv at `./venv/`
-- Provides clear setup instructions if venv missing
+#### GCommit (gcommit_app.py)
+- Orchestrates the entire commit message generation flow
+- Handles user interaction and confirmation
+- Coordinates between GitHelper and OllamaClient
 
-## Setup Commands
+#### GitHelper (git_helper.py)
+- `has_untracked_files()`: Detects untracked files for warnings
+- `get_staged_files()`: Returns list of staged file paths
+- `get_file_diff(filepath)`: Gets diff for specific file
+- `commit_changes(message)`: Executes git commit
 
+#### OllamaClient (ollama_client.py)
+- `is_available()`: Checks Ollama server connectivity
+- `summarize_file_changes(filepath, diff, hint)`: Generates per-file summaries
+- `generate_commit_message(file_summaries, hint)`: Creates final commit message
+
+## Development Commands
+
+### Setup
 ```bash
-# Initial setup (user responsibility)
+# Initial setup
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# Run the tool
-./gcommit
-
-# Development
-python gcommit.py --help
-python gcommit.py --ollama-url http://localhost:11434 --model llama3
+# Make wrapper executable
+chmod +x gcommit
 ```
 
-## Usage Flow
+### Running
+```bash
+# Standard usage
+./gcommit "hint about changes"
 
-1. **Check untracked files** via `git ls-files --others --exclude-standard`
-2. **Get staged diff** via `git diff --staged`
-3. **Generate commit message** via Ollama API
-4. **User confirmation** with option to edit
-5. **Execute commit** via `git commit -m "message"`
+# With custom model
+./gcommit "fix bug" --model llama3
+
+# Direct Python (for development)
+python gcommit.py "implement feature" --ollama-url http://localhost:11434
+```
+
+### Development Flow
+1. Stage changes: `git add <files>`
+2. Generate commit: `./gcommit "description hint"`
+3. Review generated message
+4. Confirm or edit as needed
 
 ## Dependencies
 
-- **Python 3.7+** (via venv)
-- **requests** library for Ollama HTTP API
-- **Git** must be in PATH
-- **Ollama** must be running locally
+- **requests>=2.28.0**: HTTP client for Ollama API
+- **rich>=13.0.0**: Terminal formatting (currently unused, can be removed)
+
+## External Requirements
+
+- **Git**: Must be in PATH
+- **Ollama**: Must be running locally (default: http://localhost:11434)
+- **Python 3.7+**: For venv compatibility
+
+## Key Behaviors
+
+1. **Untracked file warnings**: Alerts about files not in commit
+2. **Conventional commits**: Uses format `<type>: <description>`
+3. **Interactive confirmation**: Always prompts before committing
+4. **Staged diff analysis**: Only commits what's staged
+5. **Hint system**: Accepts user hints for message generation
+
+## Common Issues
+
+- **Ollama not running**: Start with `ollama serve`
+- **Permission denied**: `chmod +x gcommit`
+- **Venv missing**: Follow setup commands above
