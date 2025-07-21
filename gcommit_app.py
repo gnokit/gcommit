@@ -13,9 +13,10 @@ from ollama_client import OllamaClient
 class GCommit:
     """Main application class"""
     
-    def __init__(self, ollama_url: str = "http://localhost:11434", model: str = "llama3"):
+    def __init__(self, ollama_url: str = "http://localhost:11434", model: str = "llama3", hint: str = ""):
         self.git = GitHelper()
         self.ollama = OllamaClient(ollama_url, model)
+        self.hint = hint
     
     def check_untracked_files(self) -> None:
         """Display warning for untracked files"""
@@ -60,7 +61,7 @@ class GCommit:
             diff = self.git.get_file_diff(filepath)
             if diff:
                 print(f"Summarizing changes in {filepath}...")
-                summary = self.ollama.summarize_file_changes(filepath, diff)
+                summary = self.ollama.summarize_file_changes(filepath, diff, self.hint)
                 if summary:
                     file_summaries.append((filepath, summary))
         
@@ -70,7 +71,7 @@ class GCommit:
         
         # Generate commit message from summaries
         print("Generating commit message...")
-        commit_message = self.ollama.generate_commit_message(file_summaries)
+        commit_message = self.ollama.generate_commit_message(file_summaries, self.hint)
         
         if not commit_message:
             print("Error: Failed to generate commit message", file=sys.stderr)

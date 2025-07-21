@@ -25,16 +25,18 @@ class OllamaClient:
         except requests.RequestException:
             return False
     
-    def summarize_file_changes(self, filepath: str, diff: str) -> Optional[str]:
+    def summarize_file_changes(self, filepath: str, diff: str, hint: str = "") -> Optional[str]:
         """Generate one-sentence summary for file changes"""
         if not diff.strip():
             return None
         
+        hint_text = f"Focus on: {hint}" if hint else ""
         prompt = f"""Summarize the changes in this file in one concise sentence.
 
 File: {filepath}
 Changes:
 {diff}
+{hint_text}
 
 Provide only the summary sentence, no additional text."""
 
@@ -63,13 +65,14 @@ Provide only the summary sentence, no additional text."""
             print(f"Error connecting to Ollama for {filepath}: {e}", file=sys.stderr)
             return None
     
-    def generate_commit_message(self, file_summaries: List[Tuple[str, str]]) -> Optional[str]:
+    def generate_commit_message(self, file_summaries: List[Tuple[str, str]], hint: str = "") -> Optional[str]:
         """Generate commit message from file summaries"""
         if not file_summaries:
             return None
         
         summaries_text = "\n".join([f"- {filepath}: {summary}" for filepath, summary in file_summaries])
         
+        hint_text = f"\nUser hint: {hint}" if hint else ""
         prompt = f"""Generate a git commit message for the following file changes following Conventional Commits format.
 
 The message should be concise but descriptive, following this format:
@@ -81,6 +84,7 @@ Types: feat, fix, docs, style, refactor, test, chore
 
 File changes:
 {summaries_text}
+{hint_text}
 
 Provide only the commit message, no additional text."""
 

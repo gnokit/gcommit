@@ -12,6 +12,7 @@ from gcommit_app import GCommit
 def main():
     """Entry point for the CLI"""
     parser = argparse.ArgumentParser(description='AI-powered git commit message generator')
+    parser.add_argument('hint', help='Hint/instruction for generating the commit message')
     parser.add_argument('--ollama-url', default='http://localhost:11434',
                        help='Ollama server URL (default: http://localhost:11434)')
     parser.add_argument('--model', default='gemma3:4b-it-qat',
@@ -19,7 +20,7 @@ def main():
     
     args = parser.parse_args()
     
-    app = GCommit(ollama_url=args.ollama_url, model=args.model)
+    app = GCommit(ollama_url=args.ollama_url, model=args.model, hint=args.hint)
     sys.exit(app.run())
 
 
