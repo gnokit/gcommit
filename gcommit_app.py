@@ -57,10 +57,10 @@ class GCommit:
         print("Analyzing staged files...")
         file_summaries = []
         
-        for filepath in staged_files:
+        for i, filepath in enumerate(staged_files, 1):
             diff = self.git.get_file_diff(filepath)
             if diff:
-                print(f"Summarizing changes in {filepath}...")
+                print(f"({i}/{len(staged_files)}) Summarizing changes in {filepath}...")
                 summary = self.ollama.summarize_file_changes(filepath, diff, self.hint)
                 if summary:
                     file_summaries.append((filepath, summary))
