@@ -61,7 +61,7 @@ sudo ln -s /path/to/gcommit/gcommit /usr/local/bin/gcommit
 ### 5. First Run
 
 ```bash
-./gcommit
+gcommit <your_initial_commit_message>
 ```
 
 ## Usage
@@ -71,7 +71,7 @@ sudo ln -s /path/to/gcommit/gcommit /usr/local/bin/gcommit
 1. Make changes to your code
 2. Stage your changes:
    ```bash
-   git add <files>
+   git add "refactor README.md"
    ```
 3. Generate commit message:
    ```bash
@@ -88,7 +88,7 @@ echo "console.log('hello')" > app.js
 git add app.js
 
 # Generate commit message
-./gcommit
+gcommit "add console log message: hello"
 # Output:
 # ┌─────────────────────────────────────────────────────┐
 # │                    Welcome                          │
@@ -125,19 +125,6 @@ git add app.js
 # ─────── Committing Changes ───────
 # Committing... 
 # ✅ Changes committed successfully!
-```
-
-### Options
-
-```bash
-# Use custom Ollama URL
-./gcommit --ollama-url http://localhost:11434
-
-# Use different model
-./gcommit --model mistral
-
-# Get help
-./gcommit --help
 ```
 
 ## Requirements
