@@ -32,18 +32,32 @@ class GitHelper:
             return False, []
     
     @staticmethod
-    def get_staged_diff() -> Optional[str]:
-        """Get the diff of staged changes"""
+    def get_staged_files() -> List[str]:
+        """Get list of staged files"""
         try:
             result = subprocess.run(
-                ['git', 'diff', '--staged'],
+                ['git', 'diff', '--staged', '--name-only'],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            return [f.strip() for f in result.stdout.split('\n') if f.strip()]
+        except subprocess.CalledProcessError:
+            return []
+    
+    @staticmethod
+    def get_file_diff(filepath: str) -> Optional[str]:
+        """Get diff for specific file"""
+        try:
+            result = subprocess.run(
+                ['git', 'diff', '--staged', '--', filepath],
                 capture_output=True,
                 text=True,
                 check=True
             )
             return result.stdout if result.stdout.strip() else None
         except subprocess.CalledProcessError as e:
-            print(f"Error getting staged diff: {e}", file=sys.stderr)
+            print(f"Error getting diff for {filepath}: {e}", file=sys.stderr)
             return None
     
     @staticmethod
@@ -76,22 +90,62 @@ class OllamaClient:
         except requests.RequestException:
             return False
     
-    def generate_commit_message(self, diff: str) -> Optional[str]:
-        """Generate a commit message using Ollama"""
+    def summarize_file_changes(self, filepath: str, diff: str) -> Optional[str]:
+        """Generate one-sentence summary for file changes"""
         if not diff.strip():
             return None
         
-        prompt = f"""Generate a git commit message for the following changes following Conventional Commits format.
+        prompt = f"""Summarize the changes in this file in one concise sentence.
+
+File: {filepath}
+Changes:
+{diff}
+
+Provide only the summary sentence, no additional text."""
+
+        try:
+            payload = {
+                "model": self.model,
+                "prompt": prompt,
+                "stream": False
+            }
+            
+            response = requests.post(
+                self.api_url,
+                json=payload,
+                timeout=120
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                summary = result.get('response', '').strip()
+                return summary if summary else None
+            else:
+                print(f"Ollama API error for {filepath}: {response.status_code}", file=sys.stderr)
+                return None
+                
+        except requests.RequestException as e:
+            print(f"Error connecting to Ollama for {filepath}: {e}", file=sys.stderr)
+            return None
+
+    def generate_commit_message(self, file_summaries: List[Tuple[str, str]]) -> Optional[str]:
+        """Generate commit message from file summaries"""
+        if not file_summaries:
+            return None
+        
+        summaries_text = "\n".join([f"- {filepath}: {summary}" for filepath, summary in file_summaries])
+        
+        prompt = f"""Generate a git commit message for the following file changes following Conventional Commits format.
 
 The message should be concise but descriptive, following this format:
 <type>: <description>
 
-<body explaining what changed and why>
+<body explaining the overall changes>
 
 Types: feat, fix, docs, style, refactor, test, chore
 
-Changes:
-{diff}
+File changes:
+{summaries_text}
 
 Provide only the commit message, no additional text."""
 
@@ -105,7 +159,7 @@ Provide only the commit message, no additional text."""
             response = requests.post(
                 self.api_url,
                 json=payload,
-                timeout=30
+                timeout=120
             )
             
             if response.status_code == 200:
@@ -150,9 +204,9 @@ class GCommit:
         # Check for untracked files
         self.check_untracked_files()
         
-        # Get staged diff
-        diff = self.git.get_staged_diff()
-        if not diff:
+        # Get staged files
+        staged_files = self.git.get_staged_files()
+        if not staged_files:
             print("No staged changes to commit. 😥")
             print("Use 'git add <files>' to stage your changes first.")
             return 0
@@ -163,9 +217,25 @@ class GCommit:
             print("Please start Ollama with: ollama serve", file=sys.stderr)
             return 1
         
-        # Generate commit message
+        # Process each file
+        print("Analyzing staged files...")
+        file_summaries = []
+        
+        for filepath in staged_files:
+            diff = self.git.get_file_diff(filepath)
+            if diff:
+                print(f"Summarizing changes in {filepath}...")
+                summary = self.ollama.summarize_file_changes(filepath, diff)
+                if summary:
+                    file_summaries.append((filepath, summary))
+        
+        if not file_summaries:
+            print("Error: Could not summarize any file changes", file=sys.stderr)
+            return 1
+        
+        # Generate commit message from summaries
         print("Generating commit message...")
-        commit_message = self.ollama.generate_commit_message(diff)
+        commit_message = self.ollama.generate_commit_message(file_summaries)
         
         if not commit_message:
             print("Error: Failed to generate commit message", file=sys.stderr)
