@@ -17,10 +17,10 @@ AI-powered Git commit message generator that uses Ollama to create conventional 
 
 ### 1. Install Ollama
 
-Download and install Ollama from [ollama.ai](https://ollama.ai), then pull a model:
+Download and install Ollama from [ollama.ai](https://ollama.ai), then pull the recommended model:
 
 ```bash
-ollama pull llama3  # or your preferred model
+ollama pull gemma3:4b-it-qat  # recommended model
 ```
 
 ### 2. Clone and Setup
@@ -30,18 +30,39 @@ git clone <your-repo-url>
 cd gcommit
 ```
 
-### 3. First Run
+### 3. Manual Setup (Required)
 
-Simply run the wrapper script:
+You need to manually set up the Python virtual environment:
+
+```bash
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Make wrapper executable
+chmod +x gcommit
+```
+
+### 4. Add to PATH (Recommended)
+
+To use gcommit from any project directory, add it to your PATH:
+
+```bash
+# Add to your shell profile (~/.bashrc, ~/.zshrc, etc.)
+export PATH="$PATH:/path/to/gcommit"
+
+# Or create a symlink
+sudo ln -s /path/to/gcommit/gcommit /usr/local/bin/gcommit
+```
+
+### 5. First Run
 
 ```bash
 ./gcommit
 ```
-
-The wrapper will automatically:
-- Create a Python virtual environment
-- Install required dependencies
-- Use the venv Python interpreter exclusively
 
 ## Usage
 
@@ -163,10 +184,15 @@ ollama pull llama3
 ```
 
 ### Virtual Environment Issues
-The wrapper script handles venv automatically. To reset:
+Manual venv setup is required:
 ```bash
+# Remove existing venv
 rm -rf venv/
-./gcommit  # Will recreate venv
+
+# Recreate venv
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
 ### Rich Terminal Issues
@@ -180,14 +206,18 @@ If you experience display issues:
 If you want to modify the code:
 
 ```bash
-# Activate venv manually
-source venv/bin/activate
+# Ensure venv is set up
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
 # Run directly with Python
 python gcommit.py --help
+
+# Or run the wrapper
+./gcommit --help
 ```
 
 ## License
