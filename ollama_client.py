@@ -33,7 +33,7 @@ class OllamaClient:
         if not diff.strip():
             return None
         
-        hint_text = f"Focus on: {hint}" if hint else ""
+        hint_text = f"User Initial Commit Message:\n{hint}" if hint else ""
         prompt = f"""Analyze the following git diff and summarize the changes for this file in one concise sentence.
 
 File: {filepath}
@@ -76,21 +76,29 @@ Provide only the summary sentence, no additional text."""
         
         summaries_text = "\n".join([f"- {filepath}: {summary}" for filepath, summary in file_summaries])
         
-        hint_text = f"\nUser hint: {hint}" if hint else ""
-        prompt = f"""Generate a git commit message for the following file changes following Conventional Commits format.
+        hint_text = f"\nUser Initial Commit Message:\n{hint}" if hint else ""
+        prompt = f"""You are an expert at writing git commit messages following the Conventional Commits specification.
+Your task is to analyze the provided file changes and generate a well-formed commit message.
 
-The message should be concise but descriptive, following this format:
-<type>: <description>
+### Rules
+1.  **Format:** The commit message must follow this structure: `<type>: <subject>\n\n<body>`.
+2.  **Type Selection:** First, you MUST determine the single most appropriate commit `type` by analyzing the user's intent from the file changes. Choose from this list only:
+    *   **feat**: A new feature is introduced.
+    *   **fix**: A bug in the code is fixed.
+    *   **docs**: Changes are made only to documentation (e.g., README, comments).
+    *   **style**: Code style changes that don't affect logic (e.g., formatting, whitespace).
+    *   **refactor**: A code change that neither fixes a bug nor adds a feature.
+    *   **test**: Adding new tests or correcting existing ones.
+    *   **chore**: Changes to the build process, tooling, or repository maintenance.
+3.  **Subject Line:** The `<subject>` must be a concise summary of the change, written in the imperative mood (e.g., "add," not "added" or "adds"). Start with a lowercase letter and do not end with a period.
+4.  **Body:** The `<body>` should explain the "what" and "why" of the change in detail.
+5.  **Output:** CRITICAL: Your response must contain ONLY the raw commit message and nothing else. Do not include any explanations or introductory text.
 
-<body explaining the overall changes>
-
-Types: feat, fix, docs, style, refactor, test, chore
-
-File changes:
+### File Changes to Analyze
 {summaries_text}
 {hint_text}
+"""
 
-Provide only the commit message, no additional text."""
 
         try:
             payload = {
