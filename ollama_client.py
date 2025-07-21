@@ -34,14 +34,15 @@ class OllamaClient:
             return None
         
         hint_text = f"Focus on: {hint}" if hint else ""
-        prompt = f"""Summarize the changes in this file in one concise sentence.
+        prompt = f"""Analyze the following git diff and summarize the changes for this file in one concise sentence.
 
 File: {filepath}
-Changes:
+Git Diff:
 {diff}
 {hint_text}
 
 Provide only the summary sentence, no additional text."""
+
 
         try:
             payload = {
