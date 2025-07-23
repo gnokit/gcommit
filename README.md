@@ -2,6 +2,8 @@
 
 AI-powered Git commit message generator that uses Ollama to create conventional commit messages from your staged changes.
 
+<img width="930" height="406" alt="Screenshot 2025-07-23 at 1 49 12 PM" src="https://github.com/user-attachments/assets/416a4cc6-4c2c-4382-8562-ed139c762516" />
+
 ## Features
 
 - **AI-powered**: Uses local Ollama LLM to generate commit messages
